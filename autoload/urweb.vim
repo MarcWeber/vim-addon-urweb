@@ -50,3 +50,42 @@ fun! urweb#TagAndAdd(d, pat)
   call vcs_checkouts#ExecIndir([{'d': a:d, 'c': g:vim_haxe_ctags_command_recursive.' '.a:pat}])
   exec 'set tags+='.substitute(a:d,',','\\\\,','g').'/tags'
 endf
+
+
+function! urweb#BcAc()
+  let pos = col('.') -1
+  let line = getline('.')
+  return [strpart(line,0,pos), strpart(line, pos, len(line)-pos)]
+endfunction
+
+" A)
+" name:type completion
+" type can be string->string or such (is based on tags and only takes into " account the first line)
+"
+" assumens your tags have been generated with ctags (which puts uses regex as a cmd)
+fun! urweb#UrComplete(findstart, base)
+  if a:findstart
+    let [bc,ac] = urweb#BcAc()
+    let s:match_text = matchstr(bc, '\zs[^()[\]{}\t ]*$')
+    let s:start = len(bc)-len(s:match_text)
+    return s:start
+  else
+    let patterns = vim_addon_completion#AdditionalCompletionMatchPatterns(a:base
+        \ , "ocaml_completion", { 'match_beginning_of_string': 1})
+    let additional_regex = get(patterns, 'vim_regex', "")
+
+
+    let ar = split(a:base,":",1) + [""]
+    for t in taglist('^'.ar[0]) + (ar[0] == "" ? [] : taglist('^'.additional_regex))
+      " assuming t.cmd is a regex
+      " TODO: take into account if function spawns multiple lines!
+      let type = matchstr(t.cmd, '[^=:]*[=:]*\zs.*\ze/')
+      if ar[1] != '' && type !~ ar[1] | continue | endif
+      " should filter tables, views, class ? For now they occur much less
+      " often, so they don't hurt much
+      let info = t.kind.' '.type
+      call complete_add({'word': t.name, 'menu': info, 'info': info })
+    endfor
+    return []
+  endif
+endf
