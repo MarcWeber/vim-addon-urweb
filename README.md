@@ -6,7 +6,8 @@ use vim-addon-manager. This plugin depends on some of its features
 provided features:
 
       * snippets/urweb_project.snippet
-      * tag files
+      * tag based completion
+      * downloading and tagging the standard library (can you call it that way?)
 
 == setup ctags
 add to your ~/.ctags file:
