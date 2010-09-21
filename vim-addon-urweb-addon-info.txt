@@ -1,0 +1,16 @@
+{
+  "name" : "vim-addon-urweb",
+  "version" : "0.1",
+  "author" : "Marc Weber <marco-oweber@gmx.de> & others",
+  "maintainer" : "Marc Weber <marco-oweber@gmx.de>",
+  "repository" : {"type": "git", "url": "git://github.com/MarcWeber/vim-addon-urweb.git"},
+  "dependencies" : {
+    "vim-addon-mw-utils": {},
+    "vim-addon-completion": {},
+    "tlib": {},
+    "vim-addon-actions": {},
+    "vim-addon-background-cmd": {},
+    "vim-addon-toggle-buffer": {},
+  },
+  "description" : "helpers for writing urweb code"
+}
