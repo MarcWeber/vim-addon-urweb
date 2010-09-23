@@ -24,7 +24,7 @@ fun! urweb#SetUrwebProjectFile(...)
   elseif !exists('g:urweb_projectfile')
     let new_=input('specify your .urp file file: ','','customlist,urweb#UrwebProjectFileCompletion')
   else
-    new_ = g:urweb_projectfile
+    let new_ = g:urweb_projectfile
   endif
   if new_ != old
     let g:urweb_projectfile=new_
@@ -87,5 +87,63 @@ fun! urweb#UrComplete(findstart, base)
       call complete_add({'word': t.name, 'menu': info, 'info': info })
     endfor
     return []
+  endif
+endf
+
+" parse .urp file {{{1
+let s:c['f_scan_urp'] = get(s:c, 'f_scan_urp', {'func': funcref#Function('urweb#ParseURP'), 'version' : 1} )
+fun! urweb#ParseURP(filename)
+  let lines = readfile(a:filename)
+  let result = {}
+
+  let exeLines = filter(copy(lines), "v:val =~ 'exe\s'")
+  let result['exe'] = len(exeLines) > 0 ? matchstr(exeLines[-1], '^\s*exe\s\+\zs.*') : fnamemodify( a:filename, ':t:r').'.exe'
+  return result
+endf
+fun! urweb#URPContents(filename)
+  return cached_file_contents#CachedFileContents(
+    \ a:filename, s:c['f_scan_urp'] )
+endf
+
+"7ocmpile using urweb {{{1
+fun! urweb#CompileRHS(target)
+  if a:target !~ 'standalone\|fastcgi\|cgi'
+    throw "unvalid target"
+  endif
+
+  "TODO error format
+  let efm='%f:%l:%c-%m'
+
+  let urp = urweb#SetUrwebProjectFile()
+  let exe = urweb#URPContents(urp)['exe']
+
+  let onFinish = 0
+
+  let args = ["urweb", fnamemodify(urp,":r")]
+  let args = actions#VerifyArgs(args)
+
+  if a:target == "standalone"
+    unlet onFinish
+    let onFinish = funcref#Function('urweb#RestartServer', {'args': [exe] })
+  endif
+
+  " -l: need login shell for job control
+  return "call bg#RunQF(".string(args).", 'c', ".string(efm).", ".string(onFinish).")"
+endf
+
+fun! urweb#RestartServer(exe, status)
+  if 1*a:status == 0
+    echom "restarting ".a:exe
+
+    let pidFile = fnamemodify(a:exe,':r').'.pid'
+    let p_e = shellescape(pidFile)
+    if filereadable(pidFile)
+      echom "killing server by pid"
+      call system('kill -9 `cat '.p_e.'`')
+    endif
+
+    exec scriptmanager#DefineAndBind('tmpFile','g:urweb_server_log','tempname()')
+    call system('./'. shellescape(a:exe).' &> '.shellescape(tmpFile).' & jobs -p %1 > '.p_e)
+    echom 'started, pid is :'.readfile(pidFile)[0]
   endif
 endf
