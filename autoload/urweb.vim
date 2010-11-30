@@ -1,4 +1,4 @@
-exec scriptmanager#DefineAndBind('s:c','s:vim_addon_urweb','{}')
+exec scriptmanager#DefineAndBind('s:c','g:vim_addon_urweb','{}')
 " writeable directory so that we can tag the .ur and .urs library files
 let s:c['urweb_compiler_sources_dir'] = get(s:c,'urweb_compiler_sources_dir', g:vim_script_manager['plugin_root_dir'].'/urweb-compiler-sources')
 
@@ -41,13 +41,17 @@ fun! urweb#ProjectFileChanged()
   " tag lib
   let urwebSources = urweb#CheckoutUrwebSources()
   if urwebSources != ""
-    call urweb#TagAndAdd(urwebSources.'/lib','**/*.ur*')
+    call urweb#TagAndAdd(urwebSources.'/lib','.')
   endif
+  let p = urweb#URPContents(g:urweb_projectfile)
+  for lib in p.libraries
+    call urweb#TagAndAdd(lib,'.')
+  endfor
 endf
 
 " TODO refactor, shared by vim-addon-ocaml ?
 fun! urweb#TagAndAdd(d, pat)
-  call vcs_checkouts#ExecIndir([{'d': a:d, 'c': g:vim_haxe_ctags_command_recursive.' '.a:pat}])
+  call vcs_checkouts#ExecIndir([{'d': a:d, 'c': s:c.ctag_recursive.' '.a:pat}])
   exec 'set tags+='.substitute(a:d,',','\\\\,','g').'/tags'
 endf
 
@@ -91,13 +95,18 @@ fun! urweb#UrComplete(findstart, base)
 endf
 
 " parse .urp file {{{1
-let s:c['f_scan_urp'] = get(s:c, 'f_scan_urp', {'func': funcref#Function('urweb#ParseURP'), 'version' : 1} )
+let s:c['f_scan_urp'] = get(s:c, 'f_scan_urp', {'func': funcref#Function('urweb#ParseURP'), 'version' : 2} )
 fun! urweb#ParseURP(filename)
   let lines = readfile(a:filename)
   let result = {}
 
+  " executable
   let exeLines = filter(copy(lines), "v:val =~ 'exe\s'")
   let result['exe'] = len(exeLines) > 0 ? matchstr(exeLines[-1], '^\s*exe\s\+\zs.*') : fnamemodify( a:filename, ':t:r').'.exe'
+
+  " libraries
+  let p = '^\s*library\s\+\zs.*'
+  let result.libraries = map(filter(copy(lines), "v:val =~ ".string(p)),'matchstr(v:val,'.string(p).')')
   return result
 endf
 fun! urweb#URPContents(filename)
@@ -105,7 +114,17 @@ fun! urweb#URPContents(filename)
     \ a:filename, s:c['f_scan_urp'] )
 endf
 
-"7ocmpile using urweb {{{1
+fun! urweb#ExtraUrwebArgs(args)
+ let map = {'fastcgi' : 'fcgi',
+          \ 'cgi' : 'cgi,
+          \ 'standalon' : 'exe
+          \ }
+
+ return ['-output'
+       \ , fnamemodify(a:args.urp,":r").'.'. map[a:args.target] ]
+endf
+
+"compile using urweb {{{1
 fun! urweb#CompileRHS(target)
   if a:target !~ 'standalone\|fastcgi\|cgi'
     throw "unvalid target"
@@ -119,31 +138,69 @@ fun! urweb#CompileRHS(target)
 
   let onFinish = 0
 
-  let args = ["urweb", fnamemodify(urp,":r")]
+  let fargs = {'target': a:target, 'exe': exe, 'urp': urp }
+  if a:target == 'fastcgi'
+    let extra = ["-protocol", "fastcgi"] + library#Call(s:c.extra_urweb_args, [fargs])
+  elseif a:target == 'cgi'
+    let extra = ["-protocol", "cgi"]     + library#Call(s:c.extra_urweb_args, [fargs])
+  elseif a:target == 'standalone'
+    let extra = []
+  else
+    let extra = []
+  endif
+
+  let args = ["urweb"] + extra + [fnamemodify(urp,":r")]
   let args = actions#VerifyArgs(args)
 
   if a:target == "standalone"
     unlet onFinish
-    let onFinish = funcref#Function('urweb#RestartServer', {'args': [exe] })
+    let port = input("run on port:", 8080)
+    let onFinish = funcref#Function('urweb#RestartServer', {'args': [exe, port] })
   endif
 
   " -l: need login shell for job control
   return "call bg#RunQF(".string(args).", 'c', ".string(efm).", ".string(onFinish).")"
 endf
 
-fun! urweb#RestartServer(exe, status)
+fun! urweb#RestartServer(exe, port, status)
   if 1*a:status == 0
-    echom "restarting ".a:exe
+    let cmd = './'. shellescape(a:exe).' -p '.a:port
 
-    let pidFile = fnamemodify(a:exe,':r').'.pid'
-    let p_e = shellescape(pidFile)
-    if filereadable(pidFile)
-      echom "killing server by pid"
-      call system('kill -9 `cat '.p_e.'`')
+    if get(s:c,'use_vim_addon_async',0)
+      if has_key(s:c, 'urweb_buf')
+        " kill
+        let ctx = getbufvar(s:c.urweb_buf, 'ctx')
+        call ctx.kill()
+      endif
+
+      " restart
+      let ctx = {'cmd':cmd, 'move_last':1}
+      if has_key(s:c, 'urweb_buf')
+        let ctx.log_bufnr = s:c.urweb_buf
+      endif
+      call async_porcelaine#LogToBuffer(ctx)
+      let s:c.urweb_buf = bufnr('%')
+
+      exec 'command! KillUrwebApp call getbufvar(g:vim_addon_urweb.urweb_buf, "ctx").kill()'
+    else
+
+      " echoing multiple lines is annoying
+      let messages = []
+      call add(messages,"restarting ".a:exe)
+
+      let pidFile = fnamemodify(a:exe,':r').'.pid'
+      let p_e = shellescape(pidFile)
+      if filereadable(pidFile)
+        call add(messages, "killing server")
+        call system('kill -9 `cat '.p_e.'`')
+      endif
+
+      exec scriptmanager#DefineAndBind('tmpFile','g:urweb_server_log','tempname()')
+      call system(cmd .' &> '.shellescape(tmpFile).' & jobs -p %1 > '.p_e)
+      let pid = readfile(pidFile)[0]
+      call add(messages," restarted (".pid.", port : ".a:port.')')
+      echom join(messages,' - ')
+      exec 'command! KillUrwebApp !kill -9 '.pid
     endif
-
-    exec scriptmanager#DefineAndBind('tmpFile','g:urweb_server_log','tempname()')
-    call system('./'. shellescape(a:exe).' &> '.shellescape(tmpFile).' & jobs -p %1 > '.p_e)
-    echom 'started, pid is :'.readfile(pidFile)[0]
   endif
 endf

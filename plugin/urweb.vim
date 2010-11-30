@@ -1,3 +1,8 @@
+exec scriptmanager#DefineAndBind('s:c','g:vim_addon_urweb','{}')
+
+let s:c.ctag_recursive = get(s:c,'ctag_recursive','ctags -R ')
+let s:c.extra_urweb_args = get(s:c, 'extra_urweb_args', string(function('urweb#ExtraUrwebArgs')))
+
 augroup URWEB
   au!
   " this may change:
@@ -15,6 +20,13 @@ call vim_addon_completion#RegisterCompletionFunc({
       \ 'completeopt' : 'preview,menu,menuone',
       \ 'scope' : 'ur',
       \ 'func': 'urweb#UrComplete'
+      \ })
+
+call vim_addon_completion#RegisterCompletionFunc({
+      \ 'description' : 'Vim provided xml completion',
+      \ 'completeopt' : 'preview,menu,menuone',
+      \ 'scope' : 'ur',
+      \ 'func': 'htmlcomplete#CompleteTags'
       \ })
 
 call actions#AddAction('run urweb and (re) start web app', {'action': funcref#Function('urweb#CompileRHS', {'args': ['standalone']})})
