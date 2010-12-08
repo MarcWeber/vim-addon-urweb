@@ -80,10 +80,10 @@ fun! urweb#UrComplete(findstart, base)
 
 
     let ar = split(a:base,":",1) + [""]
-    for t in taglist('^'.ar[0]) + (ar[0] == "" ? [] : taglist('^'.additional_regex))
+    for t in taglist('^'.ar[0]) + (ar[0] == "" ? [] : taglist(additional_regex))
       " assuming t.cmd is a regex
       " TODO: take into account if function spawns multiple lines!
-      let type = matchstr(t.cmd, '[^=:]*[=:]*\zs.*\ze/')
+      let type = matchstr(t.cmd, '[^=:]*[=:]*\zs.*\ze\$/')
       if ar[1] != '' && type !~ ar[1] | continue | endif
       " should filter tables, views, class ? For now they occur much less
       " often, so they don't hurt much

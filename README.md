@@ -1,7 +1,8 @@
 == small utils to ease learning urweb
 
 == installation
-use vim-addon-manager. This plugin depends on some of its features
+use http://github.com/MarcWeber/vim-addon-manager
+This plugin depends on some of its features. vim-addon-manager will also install some dependencies for you.
 
 provided features:
 
