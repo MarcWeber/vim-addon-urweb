@@ -15,8 +15,9 @@ provided features:
       * using snipmate you get many html related snippets (use the fork on my github page)
       * matchit suppert for
         - xml tags
-        - let in end
+        - let .. in .. end, sig .. end, struct .. end
         - fu
+        This means you can select those objects fast and jump from one item to the next using %
       * html completion support (same as when editing .html files)
 
 == customization ==
@@ -32,14 +33,13 @@ add to your ~/.ctags file:
 
     --langdef=urweb
     --langmap=urweb:.ur,urweb:+.urs
-    --regex-urweb=/^[ \t]*val[ \t]+([A-Za-z0-9_]+)/\1/v,function/
-    --regex-urweb=/^[ \t]*(fun|and)[ \t]+([A-Za-z0-9_]+)/\2/v,function/
-    --regex-urweb=/^[ \t]*class[ \t]+([A-Za-z0-9_]+)/\1/c,class/
-    --regex-urweb=/^[ \t]*con[ \t]+([A-Za-z0-9_]+)/\1/n,con/
-    --regex-urweb=/^[ \t]*view[ \t]+([A-Za-z0-9_]+)/\1/v,view/
-    --regex-urweb=/^[ \t]*table[ \t]+([A-Za-z0-9_]+)/\1/t,table/
-    --regex-urweb=/^[ \t]*cookie[ \t]+([A-Za-z0-9_]+)/\1/o,cookie/
-    --regex-urweb=/^[ \t]*structure[ \t]+([A-Za-z0-9_]+)/\1/c,structure/
+    --regex-urweb=/^[ \t]*val[ \t]+([A-Z'a-z0-9_]+)/\1/v,function/
+    --regex-urweb=/^[ \t]*(fun|and)[ \t]+([A-Z'a-z0-9_]+)/\2/v,function/
+    --regex-urweb=/^[ \t]*class[ \t]+([A-Z'a-z0-9_]+)/\1/c,class/
+    --regex-urweb=/^[ \t]*con[ \t]+([A-Z'a-z0-9_]+)/\1/n,con/
+    --regex-urweb=/^[ \t]*view[ \t]+([A-Z'a-z0-9_]+)/\1/v,view/
+    --regex-urweb=/^[ \t]*table[ \t]+([A-Z'a-z0-9_]+)/\1/t,table/
+    --regex-urweb=/^[ \t]*cookie[ \t]+([A-Z'a-z0-9_]+)/\1/o,cookie/
 
 == why a separate distribution ? ==
 
