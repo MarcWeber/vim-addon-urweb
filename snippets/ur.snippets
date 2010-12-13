@@ -1,0 +1,51 @@
+snippet link
+	<a link={${1:name}()}>${2:text}</a>
+snippet v
+	{[${1}{VISUAL}]}
+# comment
+snippet (
+	(* ${1}{VISUAL} *)
+snippet let
+	let
+		val forename = r.Forename
+		fun pageB () = ..
+		and pageC () = ..
+	in
+		{VISUAL}
+	end
+snippet setCookie
+	cookie c : {A : string}
+	setCookie c {Value = {A = ...},
+		Expires = Some (readError "2012-11-6 00:00:00"),
+		Secure = False};
+snippet xml
+	<xml>${1}{VISUAL}</xml>
+
+snippet main
+	main () =
+		return <xml>
+			<head> <title>Hello world!!</title> </head>
+			<body>
+				<h1>My tests</h1>
+				<a link={myPage()}>my page</a>
+				<a link={hello()}>hello</a>
+			</body>
+		</xml>
+snippet page_fun
+	fun page title content = <xml>
+		<head>
+			<title>{[title]}</title>
+		</head>
+		<body>
+			<h1>{[title]}</h1>
+			{content}
+		</body>
+	</xml>
+snippet struct
+	struct
+	end
+snippet structure
+	structure ${1} : ${2}
+	end
+snippet form
+		<form><submit action={${1:action}} value="${2}"/></form>
