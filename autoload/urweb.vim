@@ -7,9 +7,8 @@ fun! urweb#CheckoutUrwebSources()
   let srcdir = s:c['urweb_compiler_sources_dir']
   if !isdirectory(srcdir)
     if input('trying to checkout urweb compiler sources into '.srcdir.'. ok ? [y/n]') == 'y'
-      call mkdir(srcdir.'/archive','p')
       " checking out std ony would suffice. disk is cheap today..
-      call scriptmanager2#Checkout(srcdir, {'url': 'http://www.impredicative.com/ur/urweb-20100603.tgz'})
+      call scriptmanager2#Checkout(srcdir, {'type' : 'hg', 'url': 'http://hg.impredicative.com/urweb'})
     else
       return ""
     endif
