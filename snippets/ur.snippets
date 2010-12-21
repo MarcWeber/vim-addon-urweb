@@ -49,3 +49,7 @@ snippet structure
 	end
 snippet form
 		<form><submit action={${1:action}} value="${2}"/></form>
+snippet case (urweb)
+	case ${1:match} of
+		${2:pattern1} => return ()
+	  | ${3:pattern2} =>

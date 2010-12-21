@@ -33,7 +33,9 @@ fun! urweb#SetUrwebProjectFile(...)
 endf
 
 fun! urweb#UrwebProjectFileCompletion(ArgLead, CmdLine, CursorPos)
-  return filter(split(glob("*.urp"), "\n"),'v:val =~'.string(a:ArgLead))
+  let files = split(glob("*.urp"), "\n")
+          \ + split(glob("*.ur"), "\n")
+  return filter(files,'v:val =~'.string(a:ArgLead))
 endf
 
 fun! urweb#ProjectFileChanged()
