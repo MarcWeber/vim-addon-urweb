@@ -21,7 +21,7 @@ fun! urweb#SetUrwebProjectFile(...)
   if a:0 > 0
     let new_=a:1
   elseif !exists('g:urweb_projectfile')
-    let new_=input('specify your .urp file file: ','','customlist,urweb#UrwebProjectFileCompletion')
+    let new_ = actions#AskFile('specify your .urp file file: ', ["*.urp", "*.ur"])
   else
     let new_ = g:urweb_projectfile
   endif
@@ -30,12 +30,6 @@ fun! urweb#SetUrwebProjectFile(...)
     call urweb#ProjectFileChanged()
   endif
   return g:urweb_projectfile
-endf
-
-fun! urweb#UrwebProjectFileCompletion(ArgLead, CmdLine, CursorPos)
-  let files = split(glob("*.urp"), "\n")
-          \ + split(glob("*.ur"), "\n")
-  return filter(files,'v:val =~'.string(a:ArgLead))
 endf
 
 fun! urweb#ProjectFileChanged()
