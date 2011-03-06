@@ -1,4 +1,4 @@
-exec scriptmanager#DefineAndBind('s:c','g:vim_addon_urweb','{}')
+exec vam#DefineAndBind('s:c','g:vim_addon_urweb','{}')
 
 let s:c.ctag_recursive = get(s:c,'ctag_recursive','ctags -R ')
 let s:c.extra_urweb_args = get(s:c, 'extra_urweb_args', string(function('urweb#ExtraUrwebArgs')))
@@ -34,6 +34,6 @@ call actions#AddAction('run urweb fastcgi', {'action': funcref#Function('urweb#C
 call actions#AddAction('run urweb cgi', {'action': funcref#Function('urweb#CompileRHS', {'args': ['cgi']})})
 
 " toggle .urs <-> .ur
-exec scriptmanager#DefineAndBind('s:l','g:vim_addon_toggle_buffer','{}')
+exec vam#DefineAndBind('s:l','g:vim_addon_toggle_buffer','{}')
 let s:l['urweb_ur'] = funcref#Function('return vim_addon_toggle#Substitute('.string('ur').','.string('urs').')')
 let s:l['urweb_urs'] = funcref#Function('return vim_addon_toggle#Substitute('.string('urs').','.string('ur').')')

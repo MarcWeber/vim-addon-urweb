@@ -1,4 +1,4 @@
-exec scriptmanager#DefineAndBind('s:c','g:vim_addon_urweb','{}')
+exec vam#DefineAndBind('s:c','g:vim_addon_urweb','{}')
 " writeable directory so that we can tag the .ur and .urs library files
 let s:c['urweb_compiler_sources_dir'] = get(s:c,'urweb_compiler_sources_dir', g:vim_script_manager['plugin_root_dir'].'/urweb-compiler-sources')
 
@@ -190,7 +190,7 @@ fun! urweb#RestartServer(exe, port, status)
         call system('kill -9 `cat '.p_e.'`')
       endif
 
-      exec scriptmanager#DefineAndBind('tmpFile','g:urweb_server_log','tempname()')
+      exec vam#DefineAndBind('tmpFile','g:urweb_server_log','tempname()')
       call system(cmd .' &> '.shellescape(tmpFile).' & jobs -p %1 > '.p_e)
       let pid = readfile(pidFile)[0]
       call add(messages," restarted (".pid.", port : ".a:port.')')
