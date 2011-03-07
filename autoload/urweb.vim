@@ -1,6 +1,6 @@
 exec vam#DefineAndBind('s:c','g:vim_addon_urweb','{}')
 " writeable directory so that we can tag the .ur and .urs library files
-let s:c['urweb_compiler_sources_dir'] = get(s:c,'urweb_compiler_sources_dir', g:vim_script_manager['plugin_root_dir'].'/urweb-compiler-sources')
+let s:c['urweb_compiler_sources_dir'] = get(s:c,'urweb_compiler_sources_dir', g:vim_addon_manager['plugin_root_dir'].'/urweb-compiler-sources')
 
 " checkout main .urp library files so that they can be tagged
 fun! urweb#CheckoutUrwebSources()
