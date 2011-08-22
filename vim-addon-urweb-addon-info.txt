@@ -10,7 +10,7 @@
     "tlib": {},
     "vim-addon-actions": {},
     "vim-addon-background-cmd": {},
-    "vim-addon-toggle-buffer": {},
+    "vim-addon-toggle-buffer": {}
   },
   "description" : "helpers for writing urweb code"
 }
