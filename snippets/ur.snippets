@@ -5,6 +5,9 @@ snippet v
 # comment
 snippet (
 	(* ${1}{VISUAL} *)
+snippet _(
+	(*
+	${1}{VISUAL}*)
 snippet let
 	let
 		val forename = r.Forename
@@ -53,3 +56,21 @@ snippet case (urweb)
 	case ${1:match} of
 		${2:pattern1} => return ()
 	  | ${3:pattern2} =>
+
+snippet sig
+	signature ${1:NAME} = sig
+		con t :: Type -> Type
+		val empty : a ::: Type -> t a
+	end
+
+snippet if
+	if ${1} then
+		${2}
+	else
+		${3}
+
+
+snippet a
+	<a link={${1}}>${2}</a>
+snippet dt 
+	datatype ${1} = ${2} | ${3}

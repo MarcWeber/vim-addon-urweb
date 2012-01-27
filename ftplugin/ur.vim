@@ -35,8 +35,5 @@ if exists("loaded_matchit")
      \  ',(:),\[:\],{:},<:>'
 endif
 
-" this will assign both: omnifunc and completefunc
-inoremap <buffer> <C-x><C-u> <c-o>:setlocal omnifunc=urweb#UrComplete<cr><c-x><c-o>
-
 " this is better than having no indentation:
 setlocal autoindent
