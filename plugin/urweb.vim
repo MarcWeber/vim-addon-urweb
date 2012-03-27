@@ -34,5 +34,4 @@ call actions#AddAction('run urweb cgi', {'action': funcref#Function('urweb#Compi
 
 " toggle .urs <-> .ur
 exec vam#DefineAndBind('s:l','g:vim_addon_toggle_buffer','{}')
-let s:l['urweb_ur'] = funcref#Function('return vim_addon_toggle#Substitute('.string('ur').','.string('urs').')')
-let s:l['urweb_urs'] = funcref#Function('return vim_addon_toggle#Substitute('.string('urs').','.string('ur').')')
+let s:l['urweb'] = funcref#Function('urweb#ToggleBufferAlternates')

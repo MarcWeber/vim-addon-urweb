@@ -199,3 +199,20 @@ fun! urweb#RestartServer(exe, port, status)
     endif
   endif
 endf
+
+fun! urweb#ToggleBufferAlternates(mode)
+  if expand('%:e') !~ '\%(urs\|ur\|urp\)' | return [] | endif
+  if a:mode == 'narrow'
+    return vim_addon_toggle#Substitute('urs','ur')
+       \ + vim_addon_toggle#Substitute('ur','urs')
+  elseif a:mode == 'all'
+    let results = []
+    " TODO1 drop current file
+    " TODO2 open urp files and show .ur* files of dependencies?
+    let dirs = ['./']
+    for d in dirs
+      call extend(results, map(split(glob(d.'**/*.ur*'),"\n"),'string(v:val)'))
+    endfor
+    return results
+  endif
+endf
