@@ -46,7 +46,7 @@ endf
 
 " TODO refactor, shared by vim-addon-ocaml ?
 fun! urweb#TagAndAdd(d, pat)
-  call vam#utils#ExecInDir([{'d': a:d, 'c': s:c.ctag_recursive.' '.a:pat}])
+  call vam#utils#ExecInDir(a:d, s:c.ctag_recursive.' '.a:pat)
   exec 'set tags+='.substitute(a:d,',','\\\\,','g').'/tags'
 endf
 
