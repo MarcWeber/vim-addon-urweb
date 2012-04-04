@@ -147,7 +147,7 @@ fun! urweb#CompileRHS(target)
   let args = ["urweb"] + extra + [fnamemodify(urp,":r")]
   let args = actions#VerifyArgs(args)
 
-  if a:target == "standalone"
+  if a:target == "standalone" && index(args, '-tc') == -1
     unlet onFinish
     let port = input("run on port:", 8080)
     let onFinish = funcref#Function('urweb#RestartServer', {'args': [exe, port] })
