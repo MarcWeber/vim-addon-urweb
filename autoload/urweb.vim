@@ -126,7 +126,7 @@ fun! urweb#CompileRHS(target)
   endif
 
   "TODO error format
-  let efm='%f:%l:%c-%m,%f:%l:~%c-%m'
+  let efm='%f:%l:%c-%m,%f:%l:~%c-%m,%f:%l:%c:%m'
 
   let urp = urweb#SetUrwebProjectFile()
   let exe = urweb#URPContents(urp)['exe']
